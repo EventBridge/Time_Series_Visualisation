@@ -20,6 +20,7 @@ int rectSize = 3;
 int lineStrokeWeight = 2;
 
 boolean audioMenu = false;
+boolean visualiseMenu = false;
 
 void setup() {
   size(1000, 600);
@@ -87,9 +88,10 @@ void draw() {
   if (audioMenu) {
     // Draw threshold
     drawThreshold();
-    
     // Draw Amplitude Array
     drawAmplitude();
+  } else if (visualiseMenu) {
+    
   } else {
     push();
     // Display main menu items
@@ -104,6 +106,7 @@ void draw() {
 }
 
 void startRecording() {
+  // TODO: reset Amplitude Array to 0.0 values
   index = 0;
   isRecording = true;
 }
