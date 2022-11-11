@@ -125,7 +125,7 @@ void draw() {
     // Draw Amplitude Array
     drawAmplitude();
   } else if (visualiseMenu) {
-    background(255);
+    background(0);
     // Combine node and audio data
     for (int i = 0; i < nodes.length; i++) {
       try {
