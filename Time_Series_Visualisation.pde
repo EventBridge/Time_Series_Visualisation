@@ -4,6 +4,7 @@ import controlP5.*;
 ControlP5 cp5;
 controlP5.Button audioButton;
 controlP5.Button recordButton;
+controlP5.Button recordNodeButton;
 controlP5.Button backButton;
 controlP5.Button kmButton;
 controlP5.Button visualiseButton;
@@ -19,6 +20,11 @@ boolean isRecording = false;
 int rectSize = 3;
 int lineStrokeWeight = 2;
 
+Node[] nodes = new Node[AMP_LENGTH];
+int nodeIndex = 0;
+boolean isRecordNode = false;
+
+boolean nodeMenu = false;
 boolean audioMenu = false;
 boolean visualiseMenu = false;
 
@@ -56,6 +62,13 @@ void setup() {
      .setColorBackground(color(255, 255, 0))
      .setColorForeground(color(255, 0, 0))
      .setColorActive(color(0, 255, 255));
+  // Start recording nodes button
+  recordNodeButton = cp5.addButton("startNodeRecording").setPosition(width - width*0.98, height-height/4).setSize(50,50)
+     .setCaptionLabel("Record")
+     .setColorCaptionLabel(color(20,20,20))
+     .setColorBackground(color(255, 255, 0))
+     .setColorForeground(color(255, 0, 0))
+     .setColorActive(color(0, 255, 255));
   // Back button
   backButton = cp5.addButton("returnHome").setPosition(width - width*0.2, height-height/4).setSize(50,50)
      .setCaptionLabel("Back")
@@ -74,7 +87,7 @@ void draw() {
   background(255);
   
   if (isRecording) {
-    // Input 100 frames of data to array
+    // Input AMP_LENGTH frames of data to array
     if (index < AMP_LENGTH) {
       println(amp.analyze());
       ampArr[index] = amp.analyze();
@@ -85,19 +98,54 @@ void draw() {
     }
   }
   
-  if (audioMenu) {
+  if (isRecordNode) {
+    // Input AMP_LENGTH frames of data to array
+    if (nodeIndex < AMP_LENGTH) {
+      nodes[nodeIndex] = new Node(mouseX, mouseY);
+      nodeIndex++;
+    } else {
+      isRecordNode = false;
+    }
+  }
+  
+  if (nodeMenu) {
+    for (int i = 0; i < nodes.length; i++) {
+      // Display node if exists
+      try {
+        nodes[i].show();
+      }
+      catch (Exception e) {
+        // nothing
+      }
+    }
+  }
+  else if (audioMenu) {
     // Draw threshold
     drawThreshold();
     // Draw Amplitude Array
     drawAmplitude();
   } else if (visualiseMenu) {
-    // TODO Visualise inputs in some way
-    push();
-    textSize(16);
-    textAlign(CENTER);
-    fill(0);
-    text("Keyboard/Mouse/Audio inputs will be visualised here in some manner", width/2, height/2);
-    pop();
+    background(255);
+    // Combine node and audio data
+    for (int i = 0; i < nodes.length; i++) {
+      try {
+        nodes[i].show(ampArr[i]);
+      }
+      catch (Exception e) {
+        // nothing
+      }
+      push();
+      colorMode(HSB);
+      float gradient = (float) i/ (float) nodes.length;
+      stroke(gradient*125, 255, 255);
+      try {
+        line(nodes[i].x, nodes[i].y, nodes[i+1].x, nodes[i+1].y);
+      }
+      catch (Exception e) {
+        // nothing
+      }
+      pop();
+    }
   } else {
     push();
     // Display main menu items
@@ -107,6 +155,7 @@ void draw() {
     text("Time Series Visualisation", width/2, 100);
     pop();
     recordButton.hide();
+    recordNodeButton.hide();
     backButton.hide();
   }
 }
@@ -115,6 +164,21 @@ void startRecording() {
   // TODO: reset Amplitude Array to 0.0 values
   index = 0;
   isRecording = true;
+}
+
+void startNodeRecording() {
+  nodes = new Node[AMP_LENGTH];
+  nodeIndex = 0;
+  isRecordNode = true;
+}
+
+void kmButton() {
+  recordNodeButton.show();
+  audioButton.hide();
+  kmButton.hide();
+  visualiseButton.hide();
+  backButton.show();
+  nodeMenu = true;
 }
 
 void displayAudio() {
@@ -142,6 +206,7 @@ void returnHome() {
   backButton.hide();
   audioMenu = false;
   visualiseMenu = false;
+  nodeMenu = false;
 }
 
 void drawAmplitude() {
