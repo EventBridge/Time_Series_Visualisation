@@ -91,7 +91,13 @@ void draw() {
     // Draw Amplitude Array
     drawAmplitude();
   } else if (visualiseMenu) {
-    
+    // TODO Visualise inputs in some way
+    push();
+    textSize(16);
+    textAlign(CENTER);
+    fill(0);
+    text("Keyboard/Mouse/Audio inputs will be visualised here in some manner", width/2, height/2);
+    pop();
   } else {
     push();
     // Display main menu items
@@ -120,6 +126,14 @@ void displayAudio() {
   audioMenu = true;
 }
 
+void startVisualisation() {
+  audioButton.hide();
+  kmButton.hide();
+  visualiseButton.hide();
+  backButton.show();
+  visualiseMenu = true;
+}
+
 void returnHome() {
   recordButton.hide();
   audioButton.show();
@@ -127,6 +141,7 @@ void returnHome() {
   visualiseButton.show();
   backButton.hide();
   audioMenu = false;
+  visualiseMenu = false;
 }
 
 void drawAmplitude() {
